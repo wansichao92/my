@@ -1,0 +1,79 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=320.1,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+
+<head>
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
+</head>
+
+<body>
+    <div class="container" style="text-align: center;">
+        <div class="body_bd body_fd">
+            <a class="weui-btn weui-btn-primary weui-btn-zdy" id="scanQRCode1">
+                <button>扫描条码</button>
+            </a>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $.ajax({
+            url : "http://erp.appjx.cn/ceshi.php",
+            type: "post",
+            data: {},
+            contentType: 'application/json;charset=utf-8',
+            async: true,
+            success: function (data) {
+                wx.config({
+                    debug: false,              // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+                    appId: data.appid,         // 必填，公众号的唯一标识
+                    timestamp: data.timestamp, // 必填，生成签名的时间戳
+                    nonceStr: data.nonceStr,   // 必填，生成签名的随机串
+                    signature: data.signature, // 必填，签名，见附录1
+                    jsApiList: ["scanQRCode"]  // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+                });
+            }
+        });
+        
+        wx.ready(function () {
+            //saomiao();
+            // 9.1.2 扫描二维码并返回结果
+            document.querySelector('#scanQRCode1').onclick = function () {
+                alert(111);
+                saomiao();
+            };
+        });
+
+        // 初始化jsapi接口 状态
+        wx.error(function (res) {
+            alert("调用微信jsapi返回的状态:" + res.errMsg);
+        });
+
+        function saomiao() {
+            wx.scanQRCode({
+                needResult: 1,
+                scanType: ["qrCode", "barCode"],
+                success: function (res) {
+                    // 扫码后获取结果参数赋值给Input
+                    var url = res.resultStr;
+                    // 商品条形码，取","后面的
+                    if (url.indexOf(",") >= 0) {
+                        var tempArray = url.split(',');
+                        var barCode = tempArray[1];
+                        if (barCode) {
+                            alert('扫完了！')
+                            window.location.href = 'http://kaidian.appjx.cn/Addkucun/index/orderid/' + barCode;
+                        }
+                    } else {
+                        alert("请对准条形码扫码!");
+                        saomiao();
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
